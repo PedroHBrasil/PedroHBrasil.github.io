@@ -11,7 +11,7 @@ header {
   padding: 0px 16px;
   margin: 8px auto;
   color: rgb(221, 221, 221);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 16px;
   border-color: rgb(100, 100, 100);
   border-width: 2px;
@@ -25,7 +25,7 @@ main {
   padding: 0px 16px;
   margin: 8px auto;
   color: rgb(221, 221, 221);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 16px;
   border-color: rgb(100, 100, 100);
   border-width: 2px;

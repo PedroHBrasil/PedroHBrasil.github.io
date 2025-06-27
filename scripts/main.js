@@ -33,6 +33,14 @@ const fsSource = `#version 300 es
 
 main();
 
+window.addEventListener(
+  "resize",
+  function (_) {
+    main();
+  },
+  true,
+);
+
 function main() {
   const canvas = document.querySelector("#gl-canvas");
 
@@ -59,7 +67,7 @@ function main() {
   const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
   // Gets cell size
-  const numCells = 10;
+  const numCells = 50;
   const gridLineThickness = 2;
   const gridParameters = calcGridParameters(
     width,
