@@ -7,7 +7,7 @@
       name="description"
       content="This website presents Pedro H. Brasil, who is an IT professional with years of experience in development and cloud, with some experience as a mechanical engineer as well."
     />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pedro H. Brasil</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -19,11 +19,19 @@
     </header>
     <main>
       <h2>The Dancing Ice Cream</h2>
-      <img
-        src="https://content.codecademy.com/articles/github-pages-via-web-app/happy-ice-cream.gif"
-        alt="The Dancing Ice Cream"
-        title="The Dancing Ice Cream"
-      />
+      <!-- <img -->
+      <!--   src="https://content.codecademy.com/articles/github-pages-via-web-app/happy-ice-cream.gif" -->
+      <!--   alt="The Dancing Ice Cream" -->
+      <!--   title="The Dancing Ice Cream" -->
+      <!-- /> -->
     </main>
+    <canvas id="gl-canvas" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script type="module" src="scripts/main.js"></script>
   </body>
 </html>
