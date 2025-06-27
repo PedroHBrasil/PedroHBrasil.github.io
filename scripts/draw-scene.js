@@ -10,6 +10,7 @@ function drawScene(gl, programInfo, buffers, gridParameters) {
   // Tell WebGL how to pull out the positions from the position
   // buffer into the vertexPosition attribute.
   setPositionAttribute(gl, buffers, programInfo);
+  setColorAttribute(gl, buffers, programInfo);
 
   // Resize webgl viewport
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -51,4 +52,24 @@ function setPositionAttribute(gl, buffers, programInfo) {
   gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 }
 
+// Tell WebGL how to pull out the colors from the colors
+// buffer into the vertexColors attribute.
+function setColorAttribute(gl, buffers, programInfo) {
+  const numComponents = 4; // pull out 2 values per iteration
+  const type = gl.FLOAT; // the data in the buffer is 32bit floats
+  const normalize = false; // don't normalize
+  const stride = 0; // how many bytes to get from one set of values to the next
+  // 0 = use type and numComponents above
+  const offset = 0; // how many bytes inside the buffer to start from
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+  gl.vertexAttribPointer(
+    programInfo.attribLocations.vertexColor,
+    numComponents,
+    type,
+    normalize,
+    stride,
+    offset,
+  );
+  gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+}
 export { drawScene };

@@ -4,7 +4,11 @@ import { drawScene } from "./draw-scene.js";
 // Vertex shader program
 const vsSource = `#version 300 es
     in vec2 a_position;
+    in vec4 a_color;
+
     uniform vec2 u_resolution;
+
+    out vec4 v_color;
 
     void main(void) {
       // convert the position from pixels to 0.0 to 1.0
@@ -17,6 +21,7 @@ const vsSource = `#version 300 es
       vec2 clipSpace = zeroToTwo - 1.0;
 
       gl_Position = vec4(clipSpace, 0, 1);
+      v_color = a_color;
     }
   `;
 
@@ -24,10 +29,11 @@ const vsSource = `#version 300 es
 const fsSource = `#version 300 es
     precision highp float;
 
-    out vec4 outColor;
+    in vec4 v_color;
+    out vec4 out_color;
 
     void main() {
-      outColor = vec4(0.15, 0.15, 0.15, 1);
+      out_color = v_color;
     }
   `;
 
@@ -66,7 +72,21 @@ function main() {
   // for the vertices and so forth is established.
   const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-  // Gets cell size
+  // Collect all the info needed to use the shader program.
+  // Look up which attribute our shader program is using
+  // for aVertexPosition and look up uniform locations.
+  const programInfo = {
+    program: shaderProgram,
+    attribLocations: {
+      vertexPosition: gl.getAttribLocation(shaderProgram, "a_position"),
+      vertexColor: gl.getAttribLocation(shaderProgram, "a_color"),
+    },
+    uniformLocations: {
+      resolution: gl.getUniformLocation(shaderProgram, "u_resolution"),
+    },
+  };
+
+  // Calculates grid parameters
   const numCells = 50;
   const gridLineThickness = 2;
   const gridParameters = calcGridParameters(
@@ -76,22 +96,12 @@ function main() {
     gridLineThickness,
   );
 
-  // Collect all the info needed to use the shader program.
-  // Look up which attribute our shader program is using
-  // for aVertexPosition and look up uniform locations.
-  const programInfo = {
-    program: shaderProgram,
-    attribLocations: {
-      vertexPosition: gl.getAttribLocation(shaderProgram, "a_position"),
-    },
-    uniformLocations: {
-      resolution: gl.getUniformLocation(shaderProgram, "u_resolution"),
-    },
-  };
+  // Makes matrix that tells which cell is alive and which is not
+  const isAliveMatrix = makeIsAliveMatrix(gridParameters);
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  const buffers = initBuffers(gl, gridParameters);
+  const buffers = initBuffers(gl, gridParameters, isAliveMatrix);
 
   // Draw the scene
   drawScene(gl, programInfo, buffers, gridParameters);
@@ -177,4 +187,18 @@ function calcGridParameters(
     cellWidth: cellWidth,
     lineThickness: gridLineThickness,
   };
+}
+
+function makeIsAliveMatrix(gridParameters) {
+  const isAliveMatrix = [];
+  for (let i = 0; i < gridParameters.numCellsX; i++) {
+    const isAliveRow = [];
+    for (let j = 0; j < gridParameters.numCellsY; j++) {
+      const isAlive = Math.round(Math.random());
+      isAliveRow.push(isAlive);
+    }
+    isAliveMatrix.push(isAliveRow);
+  }
+  console.log(isAliveMatrix);
+  return isAliveMatrix;
 }
