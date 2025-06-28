@@ -60,7 +60,6 @@ function initColorBuffer(gl, gridParameters, isAliveMatrix) {
     for (let j = 0; j < gridParameters.numCellsY; j++) {
       const isAlive = isAliveMatrix[i][j];
       const color = isAlive == 1 ? aliveColor : deadColor;
-      // console.log(`Is alive? ${isAlive == 1}`);
       for (let k = 0; k < 6; k++) {
         colors.push(color[0], color[1], color[2], color[3]);
       }

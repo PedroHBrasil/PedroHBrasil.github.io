@@ -37,11 +37,17 @@ const fsSource = `#version 300 es
     }
   `;
 
+let animationId = null;
+
 main();
 
 window.addEventListener(
   "resize",
   function (_) {
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
     main();
   },
   true,
@@ -97,14 +103,27 @@ function main() {
   );
 
   // Makes matrix that tells which cell is alive and which is not
-  const isAliveMatrix = makeIsAliveMatrix(gridParameters);
+  let isAliveMatrix = makeIsAliveMatrix(gridParameters);
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  const buffers = initBuffers(gl, gridParameters, isAliveMatrix);
+  let buffers = initBuffers(gl, gridParameters, isAliveMatrix);
 
-  // Draw the scene
-  drawScene(gl, programInfo, buffers, gridParameters);
+  let counter = 40;
+  function render() {
+    if (counter >= 60) {
+      // Draw the scene
+      drawScene(gl, programInfo, buffers, gridParameters);
+
+      isAliveMatrix = updateIsAliveMatrix(isAliveMatrix, gridParameters);
+      buffers = initBuffers(gl, gridParameters, isAliveMatrix);
+      counter = 0;
+    }
+
+    counter += 1;
+    animationId = requestAnimationFrame(render);
+  }
+  animationId = requestAnimationFrame(render);
 }
 
 //
@@ -199,6 +218,9 @@ function makeIsAliveMatrix(gridParameters) {
     }
     isAliveMatrix.push(isAliveRow);
   }
-  console.log(isAliveMatrix);
   return isAliveMatrix;
+}
+
+function updateIsAliveMatrix(isAliveMatrix, gridParameters) {
+  return makeIsAliveMatrix(gridParameters);
 }
