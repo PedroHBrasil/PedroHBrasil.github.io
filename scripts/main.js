@@ -94,7 +94,7 @@ function main() {
   };
 
   // Calculates grid parameters
-  const numCells = 100;
+  const numCells = 50;
   const gridLineThickness = 1;
   let gameOfLife = new GameOfLife(width, height, numCells, gridLineThickness);
 
