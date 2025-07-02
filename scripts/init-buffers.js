@@ -1,6 +1,6 @@
-function initBuffers(gl, gridParameters, isAliveMatrix) {
-  const positionBuffer = initPositionBuffer(gl, gridParameters);
-  const colorBuffer = initColorBuffer(gl, gridParameters, isAliveMatrix);
+function initBuffers(gl, gameOfLife) {
+  const positionBuffer = initPositionBuffer(gl, gameOfLife);
+  const colorBuffer = initColorBuffer(gl, gameOfLife);
 
   return {
     position: positionBuffer,
@@ -8,7 +8,7 @@ function initBuffers(gl, gridParameters, isAliveMatrix) {
   };
 }
 
-function initPositionBuffer(gl, gridParameters) {
+function initPositionBuffer(gl, gameOfLife) {
   // Create a buffer for the cells's positions.
   const positionBuffer = gl.createBuffer();
 
@@ -18,18 +18,16 @@ function initPositionBuffer(gl, gridParameters) {
 
   // Now create an array of positions for the cells.
   const positions = [];
-  for (let i = 0; i < gridParameters.numCellsX; i++) {
+  for (let i = 0; i < gameOfLife.numCellsX; i++) {
     const x0 =
-      gridParameters.lineThickness +
-      i * (gridParameters.cellWidth + gridParameters.lineThickness);
-    const x1 =
-      (i + 1) * (gridParameters.cellWidth + gridParameters.lineThickness);
-    for (let j = 0; j < gridParameters.numCellsY; j++) {
+      gameOfLife.lineThickness +
+      i * (gameOfLife.cellWidth + gameOfLife.lineThickness);
+    const x1 = (i + 1) * (gameOfLife.cellWidth + gameOfLife.lineThickness);
+    for (let j = 0; j < gameOfLife.numCellsY; j++) {
       const y0 =
-        gridParameters.lineThickness +
-        j * (gridParameters.cellHeight + gridParameters.lineThickness);
-      const y1 =
-        (j + 1) * (gridParameters.cellHeight + gridParameters.lineThickness);
+        gameOfLife.lineThickness +
+        j * (gameOfLife.cellHeight + gameOfLife.lineThickness);
+      const y1 = (j + 1) * (gameOfLife.cellHeight + gameOfLife.lineThickness);
       positions.push(x0, y0, x0, y1, x1, y1, x1, y1, x1, y0, x0, y0);
     }
   }
@@ -44,7 +42,7 @@ function initPositionBuffer(gl, gridParameters) {
   return positionBuffer;
 }
 
-function initColorBuffer(gl, gridParameters, isAliveMatrix) {
+function initColorBuffer(gl, gameOfLife) {
   // Create a buffer for the square's positions.
   const colorBuffer = gl.createBuffer();
 
@@ -53,12 +51,13 @@ function initColorBuffer(gl, gridParameters, isAliveMatrix) {
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 
   // Now create an array of positions for the cells.
-  const aliveColor = [0.15, 0.15, 0.15, 1.0];
+  const aliveColor = [0.2, 0.2, 0.2, 1.0];
   const deadColor = [0.1, 0.1, 0.1, 1.0];
   const colors = [];
-  for (let i = 0; i < gridParameters.numCellsX; i++) {
-    for (let j = 0; j < gridParameters.numCellsY; j++) {
-      const isAlive = isAliveMatrix[i][j];
+
+  for (let i = 0; i < gameOfLife.numCellsX; i++) {
+    for (let j = 0; j < gameOfLife.numCellsY; j++) {
+      const isAlive = gameOfLife.isAliveMatrix[i][j];
       const color = isAlive == 1 ? aliveColor : deadColor;
       for (let k = 0; k < 6; k++) {
         colors.push(color[0], color[1], color[2], color[3]);

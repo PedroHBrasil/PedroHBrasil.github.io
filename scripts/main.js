@@ -1,5 +1,6 @@
 import { initBuffers } from "./init-buffers.js";
 import { drawScene } from "./draw-scene.js";
+import { GameOfLife } from "./game-of-life.js";
 
 // Vertex shader program
 const vsSource = `#version 300 es
@@ -93,30 +94,22 @@ function main() {
   };
 
   // Calculates grid parameters
-  const numCells = 50;
-  const gridLineThickness = 2;
-  const gridParameters = calcGridParameters(
-    width,
-    height,
-    numCells,
-    gridLineThickness,
-  );
-
-  // Makes matrix that tells which cell is alive and which is not
-  let isAliveMatrix = makeIsAliveMatrix(gridParameters);
+  const numCells = 100;
+  const gridLineThickness = 1;
+  let gameOfLife = new GameOfLife(width, height, numCells, gridLineThickness);
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  let buffers = initBuffers(gl, gridParameters, isAliveMatrix);
+  let buffers = initBuffers(gl, gameOfLife);
 
-  let counter = 40;
+  let counter = 30;
   function render() {
-    if (counter >= 60) {
+    if (counter >= 45) {
       // Draw the scene
-      drawScene(gl, programInfo, buffers, gridParameters);
+      drawScene(gl, programInfo, buffers, gameOfLife);
 
-      isAliveMatrix = updateIsAliveMatrix(isAliveMatrix, gridParameters);
-      buffers = initBuffers(gl, gridParameters, isAliveMatrix);
+      gameOfLife.updateIsAliveMatrix();
+      buffers = initBuffers(gl, gameOfLife);
       counter = 0;
     }
 
@@ -175,52 +168,4 @@ function loadShader(gl, type, source) {
   }
 
   return shader;
-}
-
-function calcGridParameters(
-  width,
-  height,
-  numCellsMainAxis,
-  gridLineThickness,
-) {
-  let numCellsX = 0;
-  let numCellsY = 0;
-  if (width > height) {
-    const aspectRatio = width / height;
-    numCellsX = Math.round(numCellsMainAxis * aspectRatio);
-    numCellsY = numCellsMainAxis;
-  } else {
-    const aspectRatio = height / width;
-    numCellsX = numCellsMainAxis;
-    numCellsY = Math.round(numCellsMainAxis * aspectRatio);
-  }
-
-  const cellHeight =
-    (height - gridLineThickness) / numCellsY - gridLineThickness;
-  const cellWidth = (width - gridLineThickness) / numCellsX - gridLineThickness;
-
-  return {
-    numCellsX: numCellsX,
-    numCellsY: numCellsY,
-    cellHeight: cellHeight,
-    cellWidth: cellWidth,
-    lineThickness: gridLineThickness,
-  };
-}
-
-function makeIsAliveMatrix(gridParameters) {
-  const isAliveMatrix = [];
-  for (let i = 0; i < gridParameters.numCellsX; i++) {
-    const isAliveRow = [];
-    for (let j = 0; j < gridParameters.numCellsY; j++) {
-      const isAlive = Math.round(Math.random());
-      isAliveRow.push(isAlive);
-    }
-    isAliveMatrix.push(isAliveRow);
-  }
-  return isAliveMatrix;
-}
-
-function updateIsAliveMatrix(isAliveMatrix, gridParameters) {
-  return makeIsAliveMatrix(gridParameters);
 }

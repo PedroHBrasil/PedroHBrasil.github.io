@@ -1,4 +1,4 @@
-function drawScene(gl, programInfo, buffers, gridParameters) {
+function drawScene(gl, programInfo, buffers, gameOfLife) {
   gl.clearColor(0.05, 0.05, 0.05, 1.0); // Clear to black, fully opaque
   gl.clearDepth(1.0); // Clear everything
   gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -26,8 +26,7 @@ function drawScene(gl, programInfo, buffers, gridParameters) {
 
   {
     const offset = 0;
-    const vertexCount = gridParameters.numCellsX * gridParameters.numCellsY * 6;
-    gl.drawArrays(gl.TRIANGLES, offset, vertexCount);
+    gl.drawArrays(gl.TRIANGLES, offset, gameOfLife.vertexCount);
   }
 }
 
