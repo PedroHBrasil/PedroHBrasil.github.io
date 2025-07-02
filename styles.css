@@ -11,11 +11,27 @@ header {
   padding: 0px 16px;
   margin: 8px auto;
   color: rgb(221, 221, 221);
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.7);
   border-radius: 16px;
   border-color: rgb(100, 100, 100);
   border-width: 2px;
   border-style: solid;
+  position: relative;
+  z-index: 1;
+}
+
+main {
+  max-width: 500px;
+  padding: 0px 16px;
+  margin: 8px auto;
+  color: rgb(221, 221, 221);
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  border-color: rgb(100, 100, 100);
+  border-width: 2px;
+  border-style: solid;
+  position: relative;
+  z-index: 1;
 }
 
 h1,
@@ -29,20 +45,18 @@ p {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-main {
-  max-width: 500px;
-  padding: 0px 16px;
-  margin: 8px auto;
-  color: rgb(221, 221, 221);
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 16px;
-  border-color: rgb(100, 100, 100);
-  border-width: 2px;
-  border-style: solid;
-}
-
 img {
   border-radius: 8px;
   width: 100%;
   margin-bottom: 12px;
+  opacity: 0;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  z-index: 0;
 }
