@@ -4,14 +4,28 @@ export class GameOfLife {
   cellWidth;
   cellHeight;
   lineThickness;
-  isAliveMatrix;
-  wasAliveMatrix;
+  cellsMatrix;
+  vertices;
   vertexCount;
+  aliveColor;
+  deadColor;
+  aliveToDeadColor;
+  deadToAliveColor;
 
-  constructor(width, height, numCellsMainAxis, gridLineThickness) {
+  constructor(
+    width,
+    height,
+    numCellsMainAxis,
+    gridLineThickness,
+    aliveColor,
+    deadColor,
+  ) {
+    this.aliveColor = aliveColor;
+    this.deadColor = deadColor;
     this.calcGridParameters(width, height, numCellsMainAxis, gridLineThickness);
     this.vertexCount = this.numCellsX * this.numCellsY * 6;
-    this.initIsAliveMatrix();
+    this.initCellsMatrix();
+    this.initVertices();
   }
 
   calcGridParameters(width, height, numCellsMainAxis, gridLineThickness) {
@@ -35,48 +49,91 @@ export class GameOfLife {
       (width - gridLineThickness) / this.numCellsX - gridLineThickness;
   }
 
-  initIsAliveMatrix() {
-    this.isAliveMatrix = [];
-    this.wasAliveMatrix = [];
+  initCellsMatrix() {
+    this.cellsMatrix = [];
     for (let i = 0; i < this.numCellsX; i++) {
-      const isAliveRow = [];
+      const cellsRow = [];
       for (let j = 0; j < this.numCellsY; j++) {
         const isAlive = Math.round(Math.random());
-        isAliveRow.push(isAlive);
+        const cell = new Cell(i, j, isAlive, 0);
+        cellsRow.push(cell);
       }
-      this.isAliveMatrix.push(isAliveRow);
-      this.wasAliveMatrix.push(Array.from(isAliveRow));
+      this.cellsMatrix.push(cellsRow);
     }
   }
 
-  updateIsAliveMatrix() {
+  initVertices() {
+    this.vertices = [];
     for (let i = 0; i < this.numCellsX; i++) {
+      const x0 = this.lineThickness + i * (this.cellWidth + this.lineThickness);
+      const x1 = (i + 1) * (this.cellWidth + this.lineThickness);
       for (let j = 0; j < this.numCellsY; j++) {
-        const isAlive = this.shouldLive(i, j);
-        this.isAliveMatrix[i][j] = isAlive;
-      }
-    }
-    for (let i = 0; i < this.numCellsX; i++) {
-      for (let j = 0; j < this.numCellsY; j++) {
-        this.wasAliveMatrix[i][j] = this.isAliveMatrix[i][j];
+        const y0 =
+          this.lineThickness + j * (this.cellHeight + this.lineThickness);
+        const y1 = (j + 1) * (this.cellHeight + this.lineThickness);
+        this.vertices.push(x0, y0, x0, y1, x1, y1, x1, y1, x1, y0, x0, y0);
       }
     }
   }
 
-  shouldLive(i, j) {
-    const neighbors = this.getCellNeighbors(i, j);
-    const numAliveNeighbors = this.countAliveNeighbors(neighbors);
+  updateCellsMatrix() {
+    for (let i = 0; i < this.numCellsX; i++) {
+      for (let j = 0; j < this.numCellsY; j++) {
+        this.cellsMatrix[i][j].updateWasAlive();
+      }
+    }
+    for (let i = 0; i < this.numCellsX; i++) {
+      for (let j = 0; j < this.numCellsY; j++) {
+        const count = this.countAliveNeighbors(i, j);
+        this.cellsMatrix[i][j].updateIsAlive(count);
+      }
+    }
+  }
+
+  countAliveNeighbors(i, j) {
+    const neighbors = this.cellsMatrix[i][j].getNeighbors(
+      i,
+      j,
+      this.numCellsX,
+      this.numCellsY,
+    );
+
+    let count = 0;
+    for (const neighbor of neighbors) {
+      const i = neighbor[0];
+      const j = neighbor[1];
+      count += this.cellsMatrix[i][j].wasAlive;
+    }
+
+    return count;
+  }
+}
+
+class Cell {
+  isAlive;
+  wasAlive;
+
+  constructor(i, j, isAlive, wasAlive) {
+    this.isAlive = isAlive;
+    this.wasAlive = wasAlive;
+  }
+
+  updateWasAlive() {
+    this.wasAlive = this.isAlive;
+  }
+
+  updateIsAlive(numAliveNeighbors) {
     if (numAliveNeighbors == 3) {
-      return 1;
+      this.isAlive = 1;
     } else if (numAliveNeighbors == 2) {
-      return this.wasAliveMatrix[i][j];
+      this.isAlive = this.wasAlive;
     } else {
-      return 0;
+      this.isAlive = 0;
     }
   }
 
-  getCellNeighbors(i, j) {
-    if (i > 0 && j > 0 && i < this.numCellsX - 1 && j < this.numCellsY - 1) {
+  getNeighbors(i, j, numCellsX, numCellsY) {
+    if (i > 0 && j > 0 && i < numCellsX - 1 && j < numCellsY - 1) {
       return [
         [i - 1, j - 1],
         [i - 1, j],
@@ -89,38 +146,38 @@ export class GameOfLife {
       ];
     } else if (i == 0 && j == 0) {
       return [
-        [this.numCellsX - 1, this.numCellsY - 1],
-        [this.numCellsX - 1, j],
-        [this.numCellsX - 1, j + 1],
-        [i, this.numCellsY - 1],
+        [numCellsX - 1, numCellsY - 1],
+        [numCellsX - 1, j],
+        [numCellsX - 1, j + 1],
+        [i, numCellsY - 1],
         [i, j + 1],
-        [i + 1, this.numCellsY - 1],
+        [i + 1, numCellsY - 1],
         [i + 1, j],
         [i + 1, j + 1],
       ];
-    } else if (i == this.numCellsX - 1 && j == 0) {
+    } else if (i == numCellsX - 1 && j == 0) {
       return [
-        [i - 1, this.numCellsY - 1],
+        [i - 1, numCellsY - 1],
         [i - 1, j],
         [i - 1, j + 1],
-        [i, this.numCellsY - 1],
+        [i, numCellsY - 1],
         [i, j + 1],
-        [0, this.numCellsY - 1],
+        [0, numCellsY - 1],
         [0, j],
         [0, j + 1],
       ];
-    } else if (i == 0 && j == this.numCellsY - 1) {
+    } else if (i == 0 && j == numCellsY - 1) {
       return [
-        [this.numCellsX - 1, j - 1],
-        [this.numCellsX - 1, j],
-        [this.numCellsX - 1, 0],
+        [numCellsX - 1, j - 1],
+        [numCellsX - 1, j],
+        [numCellsX - 1, 0],
         [i, j - 1],
         [i, 0],
         [i + 1, j - 1],
         [i + 1, j],
         [i + 1, 0],
       ];
-    } else if (i == this.numCellsX - 1 && j == this.numCellsY - 1) {
+    } else if (i == numCellsX - 1 && j == numCellsY - 1) {
       return [
         [i - 1, j - 1],
         [i - 1, j],
@@ -133,16 +190,16 @@ export class GameOfLife {
       ];
     } else if (i == 0) {
       return [
-        [this.numCellsX - 1, j - 1],
-        [this.numCellsX - 1, j],
-        [this.numCellsX - 1, j + 1],
+        [numCellsX - 1, j - 1],
+        [numCellsX - 1, j],
+        [numCellsX - 1, j + 1],
         [i, j - 1],
         [i, j + 1],
         [i + 1, j - 1],
         [i + 1, j],
         [i + 1, j + 1],
       ];
-    } else if (i == this.numCellsX - 1) {
+    } else if (i == numCellsX - 1) {
       return [
         [i - 1, j - 1],
         [i - 1, j],
@@ -155,16 +212,16 @@ export class GameOfLife {
       ];
     } else if (j == 0) {
       return [
-        [i - 1, this.numCellsY - 1],
+        [i - 1, numCellsY - 1],
         [i - 1, j],
         [i - 1, j + 1],
-        [i, this.numCellsY - 1],
+        [i, numCellsY - 1],
         [i, j + 1],
-        [i + 1, this.numCellsY - 1],
+        [i + 1, numCellsY - 1],
         [i + 1, j],
         [i + 1, j + 1],
       ];
-    } else if (j == this.numCellsY - 1) {
+    } else if (j == numCellsY - 1) {
       return [
         [i - 1, j - 1],
         [i - 1, j],
@@ -176,16 +233,5 @@ export class GameOfLife {
         [i + 1, 0],
       ];
     }
-  }
-
-  countAliveNeighbors(neighbors) {
-    let count = 0;
-    for (const neighbor of neighbors) {
-      const i = neighbor[0];
-      const j = neighbor[1];
-      count += this.wasAliveMatrix[i][j];
-    }
-
-    return count;
   }
 }

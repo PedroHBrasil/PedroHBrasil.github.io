@@ -100,20 +100,25 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  let buffers = initBuffers(gl, gameOfLife);
-
-  let counter = 30;
+  const stateUpdateRate = 1;
+  let lastTime = Date.now();
   function render() {
-    if (counter >= 45) {
-      // Draw the scene
-      drawScene(gl, programInfo, buffers, gameOfLife);
+    const now = Date.now();
+    const deltaTime = now - lastTime;
+    const deltaTimeRatio = Math.pow(deltaTime / 1000 / stateUpdateRate, 2);
 
-      gameOfLife.updateIsAliveMatrix();
-      buffers = initBuffers(gl, gameOfLife);
-      counter = 0;
+    // Draw the scene
+    if (deltaTime <= stateUpdateRate * 1000) {
+      const buffers = initBuffers(gl, gameOfLife, deltaTimeRatio);
+      drawScene(gl, programInfo, buffers, gameOfLife);
+    } else if (deltaTime >= 1.5 * stateUpdateRate * 1000) {
+      gameOfLife.updateCellsMatrix();
+      lastTime = now;
+    } else {
+      const buffers = initBuffers(gl, gameOfLife, 1);
+      drawScene(gl, programInfo, buffers, gameOfLife);
     }
 
-    counter += 1;
     animationId = requestAnimationFrame(render);
   }
   animationId = requestAnimationFrame(render);
