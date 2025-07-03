@@ -102,18 +102,21 @@ function main() {
   // objects we'll be drawing.
   let buffers = initBuffers(gl, gameOfLife);
 
+  const frameRate = 1;
+  let lastTime = Date.now();
   let counter = 30;
   function render() {
-    if (counter >= 45) {
+    const now = Date.now();
+    const deltaTime = now - lastTime;
+    if (deltaTime >= frameRate * 1000) {
       // Draw the scene
       drawScene(gl, programInfo, buffers, gameOfLife);
 
       gameOfLife.updateIsAliveMatrix();
       buffers = initBuffers(gl, gameOfLife);
-      counter = 0;
+      lastTime = now;
     }
 
-    counter += 1;
     animationId = requestAnimationFrame(render);
   }
   animationId = requestAnimationFrame(render);
